@@ -573,6 +573,8 @@ const COMMANDS = [
 
 /* ===================== OVERRIDES (admin) ===================== */
 
+let publishedOverridesPromise = null;
+
 function loadOverrides() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -586,6 +588,21 @@ function loadOverrides() {
 function overrideFor(prefix, id) {
   const overrides = loadOverrides();
   return overrides[`${prefix}-${id}`] || null;
+}
+
+function loadPublishedOverrides() {
+  if (!publishedOverridesPromise) {
+    publishedOverridesPromise = fetch("overrides.json", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : {}))
+      .then((data) => (data && typeof data === "object" ? data : {}))
+      .catch(() => ({}));
+  }
+  return publishedOverridesPromise;
+}
+
+async function loadAllOverrides() {
+  const published = await loadPublishedOverrides();
+  return { ...published, ...loadOverrides() };
 }
 
 /* ===================== RENDERING ===================== */
@@ -641,15 +658,6 @@ function manifestImagesFor(manifest, prefix, id) {
   });
 }
 
-function fallbackManifestImagesFor(manifest, prefix, id) {
-  if (!manifest.length) return [];
-  const index =
-    prefix === "step"
-      ? STEPS.findIndex((item) => item.id === id)
-      : STEPS.length + COMMANDS.findIndex((item) => item.id === id);
-  return index >= 0 && index < manifest.length ? [manifest[index]] : [];
-}
-
 // Resolve images for a card: override first, then probe sequential files.
 async function resolveImages(prefix, id, override) {
   if (override) {
@@ -671,7 +679,7 @@ async function resolveImages(prefix, id, override) {
   const manifest = await loadImageManifest();
   const mapped = manifestImagesFor(manifest, prefix, id);
   if (mapped.length) return mapped;
-  return fallbackManifestImagesFor(manifest, prefix, id);
+  return [];
 }
 
 function attachShot(fig, images, captionLabel) {
@@ -715,52 +723,53 @@ function renderCards() {
 
   const buckets = {};
   grids.forEach((g) => (buckets[g.dataset.section] = g));
-  const overrides = loadOverrides();
+  loadAllOverrides().then((overrides) => {
 
-  COMMANDS.forEach((cmd) => {
-    const grid = buckets[cmd.section];
-    if (!grid) return;
+    COMMANDS.forEach((cmd) => {
+      const grid = buckets[cmd.section];
+      if (!grid) return;
 
-    // Merge overrides (text only; image handled below)
-    const ov = overrides[`cmd-${cmd.id}`] || {};
-    const name = ov.name || cmd.name;
-    const desc = ov.desc || cmd.desc;
-    const example = ov.example != null ? ov.example : cmd.example;
+      // Merge overrides (text only; image handled below)
+      const ov = overrides[`cmd-${cmd.id}`] || {};
+      const name = ov.name || cmd.name;
+      const desc = ov.desc || cmd.desc;
+      const example = ov.example != null ? ov.example : cmd.example;
 
-    const node = tpl.content.firstElementChild.cloneNode(true);
-    node.dataset.id = cmd.id;
-    node.dataset.tier = cmd.tier;
-    node.dataset.cat = cmd.cat;
+      const node = tpl.content.firstElementChild.cloneNode(true);
+      node.dataset.id = cmd.id;
+      node.dataset.tier = cmd.tier;
+      node.dataset.cat = cmd.cat;
 
-    const haystack = (name + " " + desc + " " + (example || ""))
-      .toLowerCase();
-    node.dataset.search = haystack;
+      const haystack = (name + " " + desc + " " + (example || ""))
+        .toLowerCase();
+      node.dataset.search = haystack;
 
-    node.querySelector(".cmd-name").textContent = name;
+      node.querySelector(".cmd-name").textContent = name;
 
-    const badge = node.querySelector(".tier-badge");
-    badge.textContent = TIER_LABELS[cmd.tier];
-    badge.classList.add("tier-" + cmd.tier);
+      const badge = node.querySelector(".tier-badge");
+      badge.textContent = TIER_LABELS[cmd.tier];
+      badge.classList.add("tier-" + cmd.tier);
 
-    node.querySelector(".cmd-desc").textContent = desc;
+      node.querySelector(".cmd-desc").textContent = desc;
 
-    const ex = node.querySelector(".cmd-example code");
-    if (example) {
-      ex.textContent = example;
-    } else {
-      node.querySelector(".cmd-example").remove();
-    }
+      const ex = node.querySelector(".cmd-example code");
+      if (example) {
+        ex.textContent = example;
+      } else {
+        node.querySelector(".cmd-example").remove();
+      }
 
-    const fig = node.querySelector(".shot");
-    const cap = fig.querySelector("figcaption");
-    const captionLabel = "Result: " + name.split(/[\s·]/)[0];
-    cap.textContent = captionLabel;
-    fig.dataset.captionLabel = captionLabel;
+      const fig = node.querySelector(".shot");
+      const cap = fig.querySelector("figcaption");
+      const captionLabel = "Result: " + name.split(/[\s·]/)[0];
+      cap.textContent = captionLabel;
+      fig.dataset.captionLabel = captionLabel;
 
-    grid.appendChild(node);
+      grid.appendChild(node);
 
-    // Resolve images asynchronously so the layout shows up immediately
-    resolveImages("cmd", cmd.id, ov).then((images) => attachShot(fig, images, captionLabel));
+      // Resolve images asynchronously so the layout shows up immediately
+      resolveImages("cmd", cmd.id, ov).then((images) => attachShot(fig, images, captionLabel));
+    });
   });
 
   // Stats
@@ -771,14 +780,15 @@ function renderCards() {
 /* ===================== STEP SHOTS ===================== */
 
 function wireStepShots() {
-  const overrides = loadOverrides();
-  document.querySelectorAll(".step .shot").forEach((fig) => {
-    const id = fig.dataset.shot;
-    if (!id) return;
-    const captionEl = fig.querySelector("figcaption");
-    const captionLabel = (captionEl && captionEl.textContent.trim()) || ("Step " + id);
-    const ov = overrides[`step-${id}`];
-    resolveImages("step", id, ov).then((images) => attachShot(fig, images, captionLabel));
+  loadAllOverrides().then((overrides) => {
+    document.querySelectorAll(".step .shot").forEach((fig) => {
+      const id = fig.dataset.shot;
+      if (!id) return;
+      const captionEl = fig.querySelector("figcaption");
+      const captionLabel = (captionEl && captionEl.textContent.trim()) || ("Step " + id);
+      const ov = overrides[`step-${id}`];
+      resolveImages("step", id, ov).then((images) => attachShot(fig, images, captionLabel));
+    });
   });
 }
 

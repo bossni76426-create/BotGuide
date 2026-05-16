@@ -375,7 +375,7 @@
     a.download = "overrides.json";
     a.click();
     URL.revokeObjectURL(a.href);
-    setStatus(`Exported ${Object.keys(data).length} override(s) to overrides.json`, "ok");
+    setStatus(`Exported ${Object.keys(data).length} override(s). Put overrides.json in src/ and push it.`, "ok");
   }
 
   function importJSON(file) {

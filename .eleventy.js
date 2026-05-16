@@ -28,6 +28,9 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ "src/style.css": "style.css" });
   eleventyConfig.addPassthroughCopy({ "src/script.js": "script.js" });
   eleventyConfig.addPassthroughCopy({ "src/img": "img" });
+  if (fs.existsSync(path.join(__dirname, "src", "overrides.json"))) {
+    eleventyConfig.addPassthroughCopy({ "src/overrides.json": "overrides.json" });
+  }
 
   if (includeAdmin) {
     eleventyConfig.addPassthroughCopy({ "src/admin.js": "admin.js" });
