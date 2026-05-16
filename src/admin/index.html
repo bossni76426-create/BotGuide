@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin · GOGITO Bot Guide</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body class="admin">
+  <header class="topbar">
+    <a class="brand" href="../">
+      <span class="brand-mark">G</span>
+      <span class="brand-text">
+        <strong>GOGITO Admin</strong>
+        <small>Guide content editor</small>
+      </span>
+    </a>
+
+    <nav class="topnav" aria-label="Primary">
+      <a href="#steps">Steps</a>
+      <a href="#cmds">Commands</a>
+      <a href="../">View site →</a>
+    </nav>
+
+    <div class="searchbar">
+      <input id="admin-search" type="search" placeholder="Filter commands…" autocomplete="off" />
+      <kbd>/</kbd>
+    </div>
+  </header>
+
+  <section class="admin-hero">
+    <div class="hero-inner">
+      <span class="eyebrow">Editor · local only</span>
+      <h1>Drop screenshots &amp; tweak text.</h1>
+      <p class="lead">
+        Every change is saved in <em>your browser only</em>. Use <strong>Export JSON</strong>
+        to download a snapshot, then commit it as <code>src/overrides.json</code> for
+        permanent baking, or drop the matching PNGs into <code>src/img/</code>.
+      </p>
+
+      <div class="admin-toolbar">
+        <button class="btn btn-primary" id="export-btn">Export JSON</button>
+        <label class="btn btn-ghost" for="import-input">
+          Import JSON
+          <input id="import-input" type="file" accept="application/json" hidden />
+        </label>
+        <button class="btn btn-ghost" id="reset-btn">Reset all</button>
+        <a class="btn btn-ghost" href="../" target="_blank" rel="noopener">Open preview</a>
+      </div>
+
+      <p class="admin-status" id="admin-status">Loaded.</p>
+    </div>
+  </section>
+
+  <main class="container admin-container">
+
+    <!-- ===== STEPS ===== -->
+    <section id="steps" class="block">
+      <header class="block-head">
+        <span class="kicker">Onboarding</span>
+        <h2>Getting Started · 3 steps</h2>
+        <p>Pick a screenshot for each setup step. Text fields here are optional — leave blank to keep the default copy.</p>
+      </header>
+      <div class="admin-grid" id="admin-steps"></div>
+    </section>
+
+    <!-- ===== COMMANDS ===== -->
+    <section id="cmds" class="block">
+      <header class="block-head">
+        <span class="kicker">Commands</span>
+        <h2>Every bot command</h2>
+        <p>Pick a category to expand, then upload a result screenshot or edit any copy.</p>
+      </header>
+
+      <nav class="chips" id="admin-categories" aria-label="Categories">
+        <button class="chip active" data-filter="all">All</button>
+        <button class="chip" data-filter="menu">Menu</button>
+        <button class="chip" data-filter="account">Account</button>
+        <button class="chip" data-filter="card">Card</button>
+        <button class="chip" data-filter="stage">Stage</button>
+        <button class="chip" data-filter="zbattle">Z-Battle</button>
+        <button class="chip" data-filter="farm">Farming</button>
+        <button class="chip" data-filter="gw">GW</button>
+        <button class="chip" data-filter="summon">Summon</button>
+        <button class="chip" data-filter="shop">Shop</button>
+        <button class="chip" data-filter="special">Special</button>
+      </nav>
+
+      <div class="admin-grid" id="admin-cmds"></div>
+      <p class="empty-state" id="admin-empty" hidden>No commands match your filter.</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>
+      Admin mode · changes live in your browser only ·
+      <a href="../">Back to public guide</a>
+    </p>
+  </footer>
+
+  <!-- Admin card template -->
+  <template id="tpl-admin-card">
+    <article class="admin-card" data-id="" data-kind="" data-cat="">
+      <header class="admin-card-head">
+        <code class="admin-card-id"></code>
+        <span class="tier-badge"></span>
+      </header>
+      <div class="admin-card-body">
+        <div class="admin-gallery">
+          <div class="admin-thumbs"></div>
+          <label class="admin-add-img" tabindex="0">
+            <span class="admin-add-icon">+</span>
+            <span class="admin-add-label">Add screenshot</span>
+            <small>or drop image here</small>
+            <input type="file" accept="image/*" multiple hidden />
+          </label>
+        </div>
+        <div class="admin-fields">
+          <label>
+            <span>Title</span>
+            <input type="text" data-field="name" />
+          </label>
+          <label>
+            <span>Description</span>
+            <textarea data-field="desc" rows="3"></textarea>
+          </label>
+          <label>
+            <span>Example</span>
+            <textarea data-field="example" rows="2" spellcheck="false"></textarea>
+          </label>
+        </div>
+      </div>
+      <footer class="admin-card-foot">
+        <span class="admin-save-state">Saved</span>
+        <button type="button" class="admin-reset-card">Reset this card</button>
+      </footer>
+    </article>
+  </template>
+
+  <!-- Single thumbnail template -->
+  <template id="tpl-admin-thumb">
+    <div class="admin-thumb" draggable="true">
+      <img alt="" />
+      <div class="admin-thumb-actions">
+        <button type="button" class="admin-thumb-up" title="Move left" aria-label="Move left">‹</button>
+        <button type="button" class="admin-thumb-down" title="Move right" aria-label="Move right">›</button>
+        <button type="button" class="admin-thumb-remove" title="Remove" aria-label="Remove">×</button>
+      </div>
+    </div>
+  </template>
+
+  <!-- Loads COMMANDS, STEPS via window.GOGITO -->
+  <script src="../script.js"></script>
+  <script src="../admin.js"></script>
+</body>
+</html>

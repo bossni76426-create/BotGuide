@@ -1,0 +1,16 @@
+{
+  "name": "gogito-dokkan-guide",
+  "version": "1.1.0",
+  "description": "Beginner-friendly web guide for the GOGITO Dokkan Battle automation bot (bot.py + commands.py).",
+  "private": true,
+  "scripts": {
+    "start": "cross-env INCLUDE_ADMIN=1 eleventy --serve --quiet",
+    "start:public": "eleventy --serve --quiet",
+    "build": "eleventy",
+    "build:full": "cross-env INCLUDE_ADMIN=1 eleventy"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1",
+    "cross-env": "^7.0.3"
+  }
+}

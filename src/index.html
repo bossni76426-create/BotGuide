@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GOGITO Bot Guide · Dokkan Battle Automation</title>
+  <meta name="description" content="Beginner-friendly user guide for the GOGITO Dokkan Battle automation bot. Browse every command, see what it does, and view example output screenshots." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ===================== TOP BAR ===================== -->
+  <header class="topbar">
+    <a class="brand" href="#top">
+      <span class="brand-mark">G</span>
+      <span class="brand-text">
+        <strong>GOGITO Bot</strong>
+        <small>Dokkan Battle Guide</small>
+      </span>
+    </a>
+
+    <nav class="topnav" aria-label="Primary">
+      <a href="#getting-started">Getting Started</a>
+      <a href="#menu-commands">Menu</a>
+      <a href="#in-game-commands">In-Game</a>
+      <a href="#tiers">Tiers</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+
+    <div class="searchbar">
+      <input id="search" type="search" placeholder="Search any command…" autocomplete="off" spellcheck="false" />
+      <kbd>/</kbd>
+    </div>
+  </header>
+
+  <!-- ===================== HERO ===================== -->
+  <section id="top" class="hero">
+    <div class="hero-inner">
+      <span class="eyebrow">Unofficial user guide · v3.0.2</span>
+      <h1>Run Dokkan Battle on autopilot.</h1>
+      <p class="lead">
+        GOGITO is a command-line automation bot for <strong>Dragon Ball Z Dokkan Battle</strong>.
+        This guide walks you through every command in <code>bot.py</code> and <code>commands.py</code>,
+        what it does, how to call it, and what its result looks like.
+      </p>
+
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#getting-started">Start here</a>
+        <a class="btn btn-ghost" href="#in-game-commands">Browse commands</a>
+      </div>
+
+      <div class="hero-stats">
+        <div><strong id="stat-cmds">…</strong><small>commands</small></div>
+        <div><strong>4</strong><small>tiers</small></div>
+        <div><strong>10</strong><small>categories</small></div>
+      </div>
+    </div>
+  </section>
+
+  <main class="container">
+
+    <!-- ===================== GETTING STARTED ===================== -->
+    <section id="getting-started" class="block">
+      <header class="block-head">
+        <span class="kicker">01 · Setup</span>
+        <h2>Getting Started in 3 steps</h2>
+        <p>Run the bot once, log in, then drive everything from the in-game command prompt.</p>
+      </header>
+
+      <div class="steps">
+        <article class="step">
+          <span class="step-num">1</span>
+          <h3>Download &amp; launch</h3>
+          <p>The bot ships as a single Nuitka-compiled <code>.exe</code>. No Python install, no terminal setup — just double-click to launch.</p>
+          <pre class="code"><code>DokkanBot.exe</code></pre>
+          <p class="note">If Windows asks for <strong>Visual C++ Redistributable</strong>, install the latest x64 build from Microsoft and re-launch.</p>
+          <figure class="shot" data-shot="start" tabindex="0" role="button" aria-label="View screenshot">
+            <span class="shot-count" hidden></span>
+            <figcaption>Result: bot menu</figcaption>
+          </figure>
+        </article>
+
+        <article class="step">
+          <span class="step-num">2</span>
+          <h3>Create or load an account</h3>
+          <p>You can sign up a fresh account, log in with Google, or load a saved one.</p>
+          <pre class="code"><code>new gb android       # 1 Global Android account
+login gg jp ios      # Google login on Japan iOS
+load mainacc         # load a save</code></pre>
+          <figure class="shot" data-shot="login" tabindex="0" role="button" aria-label="View screenshot">
+            <span class="shot-count" hidden></span>
+            <figcaption>Result: account loaded</figcaption>
+          </figure>
+        </article>
+
+        <article class="step">
+          <span class="step-num">3</span>
+          <h3>Type a command</h3>
+          <p>Once logged in, type <code>help</code> to list everything, or jump straight into farming.</p>
+          <pre class="code"><code>help
+omegafarm
+events
+zbattles</code></pre>
+          <figure class="shot" data-shot="help" tabindex="0" role="button" aria-label="View screenshot">
+            <span class="shot-count" hidden></span>
+            <figcaption>Result: help screen</figcaption>
+          </figure>
+        </article>
+      </div>
+
+      <aside class="callout">
+        <strong>Tip ·</strong> Hold <kbd>Ctrl</kbd>+<kbd>C</kbd> any time to stop the running command and return to the prompt.
+        Type <code>exit</code> to leave the command loop and return to the menu.
+      </aside>
+    </section>
+
+    <!-- ===================== BOT MENU COMMANDS ===================== -->
+    <section id="menu-commands" class="block">
+      <header class="block-head">
+        <span class="kicker">02 · Menu layer</span>
+        <h2>Bot Menu Commands</h2>
+        <p>These commands work at the top-level menu of <code>bot.py</code> — before you load into an account.</p>
+      </header>
+
+      <div class="cmd-grid" data-section="menu"></div>
+    </section>
+
+    <!-- ===================== IN-GAME COMMANDS ===================== -->
+    <section id="in-game-commands" class="block">
+      <header class="block-head">
+        <span class="kicker">03 · In-game</span>
+        <h2>In-Game Commands</h2>
+        <p>Once an account is loaded, these are the commands available at the bot prompt. Use the search bar to jump directly to any.</p>
+      </header>
+
+      <nav class="chips" id="category-chips" aria-label="Categories">
+        <button class="chip active" data-filter="all">All</button>
+        <button class="chip" data-filter="account">Account</button>
+        <button class="chip" data-filter="card">Card</button>
+        <button class="chip" data-filter="stage">Stage</button>
+        <button class="chip" data-filter="zbattle">Z-Battle / EZA</button>
+        <button class="chip" data-filter="farm">Farming</button>
+        <button class="chip" data-filter="gw">Greatest Warrior</button>
+        <button class="chip" data-filter="summon">Summon</button>
+        <button class="chip" data-filter="shop">Shop</button>
+        <button class="chip" data-filter="special">Special</button>
+      </nav>
+
+      <nav class="chips chips-tier" aria-label="Tier filter">
+        <button class="chip active" data-tier="all">All tiers</button>
+        <button class="chip chip-basic" data-tier="basic">Basic</button>
+        <button class="chip chip-vip" data-tier="vip">VIP</button>
+        <button class="chip chip-premium" data-tier="premium">Premium</button>
+      </nav>
+
+      <div class="cmd-grid" data-section="in-game"></div>
+
+      <p class="empty-state" id="empty-state" hidden>No commands match your search.</p>
+    </section>
+
+    <!-- ===================== TIERS ===================== -->
+    <section id="tiers" class="block">
+      <header class="block-head">
+        <span class="kicker">04 · Access</span>
+        <h2>Tier System</h2>
+        <p>Commands are gated by your license tier. Higher tiers inherit lower-tier permissions.</p>
+      </header>
+
+      <div class="tier-grid">
+        <article class="tier-card tier-basic">
+          <h3>Basic</h3>
+          <p>Free tier. Account management, stages, story, summons, EZA up to level 30.</p>
+          <span class="cap">20 accounts</span>
+        </article>
+        <article class="tier-card tier-vip">
+          <h3>VIP</h3>
+          <p>Adds keys-completion, link farming, medals GUI, dragon balls, missions, Greatest Warrior.</p>
+          <span class="cap">250 accounts</span>
+        </article>
+        <article class="tier-card tier-premium">
+          <h3>Premium</h3>
+          <p>Adds Hidden Potential auto, F2P auto, auto-build team, Baba GUI.</p>
+          <span class="cap">400 accounts</span>
+        </article>
+        <article class="tier-card tier-elite">
+          <h3>Elite +</h3>
+          <p>Larger account limits (Elite 750 · Supreme 1200) for power users.</p>
+          <span class="cap">750–1200 accounts</span>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===================== FAQ ===================== -->
+    <section id="faq" class="block">
+      <header class="block-head">
+        <span class="kicker">05 · FAQ</span>
+        <h2>Common questions</h2>
+      </header>
+
+      <div class="faq">
+        <details>
+          <summary>How do I stop a running command?</summary>
+          <p>Hold <kbd>Ctrl</kbd>+<kbd>C</kbd>. The bot catches the interrupt and returns to the command prompt.</p>
+        </details>
+        <details>
+          <summary>The database looks out of date — what now?</summary>
+          <p>Run <code>updatedb</code>. The bot auto-runs it on first DB error, but you can force a refresh any time.</p>
+        </details>
+        <details>
+          <summary>Where are saves stored?</summary>
+          <p>In the <code>Saves/</code> folder next to <code>bot.py</code>. Each save is a JSON file with the account identifier and proxy.</p>
+        </details>
+        <details>
+          <summary>Can I run commands in batch?</summary>
+          <p>Yes — put one command per line in a <code>.txt</code> file inside <code>custom_commands/</code>, then run <code>custom</code> and pick the file.</p>
+        </details>
+        <details>
+          <summary>How do I add my own screenshots to this guide?</summary>
+          <p>Drop a PNG into <code>dokkan_guide/src/img/</code> named after the command id (e.g. <code>cmd-omegafarm.png</code>). The card auto-loads it.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>
+      Built for the GOGITO Bot community ·
+      <a href="https://www.patreon.com/c/GComuntity/membership" target="_blank" rel="noopener">Tier upgrades</a> ·
+      Hold <kbd>Ctrl</kbd>+<kbd>C</kbd> to stop · <code>help</code> for full reference
+    </p>
+  </footer>
+
+  <!-- Template for a command card (cloned by JS) -->
+  <template id="tpl-card">
+    <article class="cmd" data-id="" data-tier="basic" data-cat="">
+      <header class="cmd-head">
+        <code class="cmd-name"></code>
+        <span class="tier-badge"></span>
+      </header>
+      <p class="cmd-desc"></p>
+      <pre class="cmd-example"><code></code></pre>
+      <figure class="shot" tabindex="0" role="button" aria-label="View screenshot">
+        <img alt="" loading="lazy" />
+        <span class="shot-count" hidden></span>
+        <figcaption></figcaption>
+      </figure>
+    </article>
+  </template>
+
+  <!-- ===================== LIGHTBOX ===================== -->
+  <div class="lb" id="lightbox" hidden aria-hidden="true" role="dialog" aria-label="Screenshot viewer">
+    <button class="lb-close" type="button" aria-label="Close">&times;</button>
+    <button class="lb-nav lb-prev" type="button" aria-label="Previous">&#8249;</button>
+    <figure class="lb-stage">
+      <img class="lb-img" alt="" />
+      <figcaption class="lb-caption"></figcaption>
+    </figure>
+    <button class="lb-nav lb-next" type="button" aria-label="Next">&#8250;</button>
+    <span class="lb-counter"></span>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
