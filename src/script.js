@@ -599,6 +599,7 @@ const TIER_LABELS = {
 /* ===================== IMAGE RESOLUTION ===================== */
 
 const MAX_PROBE = 4; // max screenshots auto-discovered per card
+let imageManifestPromise = null;
 
 function probeImage(url) {
   return new Promise((resolve) => {
@@ -611,6 +612,42 @@ function probeImage(url) {
 
 function filePathFor(prefix, id, idx) {
   return idx === 0 ? `img/${prefix}-${id}.png` : `img/${prefix}-${id}-${idx + 1}.png`;
+}
+
+function loadImageManifest() {
+  if (!imageManifestPromise) {
+    imageManifestPromise = fetch("img-manifest.json", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : { images: [] }))
+      .then((data) => (Array.isArray(data.images) ? data.images : []))
+      .catch(() => []);
+  }
+  return imageManifestPromise;
+}
+
+function normalizeKeyPart(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/\.[a-z0-9]+$/i, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function manifestImagesFor(manifest, prefix, id) {
+  const key = `${prefix}-${normalizeKeyPart(id)}`;
+  return manifest.filter((url) => {
+    const filename = decodeURIComponent(url.split("/").pop() || "");
+    const name = normalizeKeyPart(filename);
+    return name === key || name.startsWith(`${key}-`) || name.includes(key);
+  });
+}
+
+function fallbackManifestImagesFor(manifest, prefix, id) {
+  if (!manifest.length) return [];
+  const index =
+    prefix === "step"
+      ? STEPS.findIndex((item) => item.id === id)
+      : STEPS.length + COMMANDS.findIndex((item) => item.id === id);
+  return index >= 0 && index < manifest.length ? [manifest[index]] : [];
 }
 
 // Resolve images for a card: override first, then probe sequential files.
@@ -629,7 +666,12 @@ async function resolveImages(prefix, id, override) {
     if (r) out.push(r);
     else break; // stop at first gap
   }
-  return out;
+  if (out.length) return out;
+
+  const manifest = await loadImageManifest();
+  const mapped = manifestImagesFor(manifest, prefix, id);
+  if (mapped.length) return mapped;
+  return fallbackManifestImagesFor(manifest, prefix, id);
 }
 
 function attachShot(fig, images, captionLabel) {

@@ -1,3 +1,24 @@
+const fs = require("fs");
+const path = require("path");
+
+const imageExtensions = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif", ".avif"]);
+
+function toUrlPath(filePath) {
+  return filePath.split(path.sep).map(encodeURIComponent).join("/");
+}
+
+function listImages(dir) {
+  if (!fs.existsSync(dir)) return [];
+  return fs
+    .readdirSync(dir, { withFileTypes: true })
+    .flatMap((entry) => {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) return listImages(fullPath);
+      if (!entry.isFile()) return [];
+      return imageExtensions.has(path.extname(entry.name).toLowerCase()) ? [fullPath] : [];
+    });
+}
+
 module.exports = function (eleventyConfig) {
   // Admin is local-only by default. Set INCLUDE_ADMIN=1 to bundle it
   // (e.g. for testing the editor against the built _site).
@@ -14,6 +35,20 @@ module.exports = function (eleventyConfig) {
     // Skip the admin folder + its assets in production builds
     eleventyConfig.ignores.add("src/admin/**");
   }
+
+  eleventyConfig.on("eleventy.after", () => {
+    const imgDir = path.join(__dirname, "src", "img");
+    const outDir = path.join(__dirname, "_site");
+    const images = listImages(imgDir)
+      .map((filePath) => `img/${toUrlPath(path.relative(imgDir, filePath))}`)
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+    fs.mkdirSync(outDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(outDir, "img-manifest.json"),
+      JSON.stringify({ images }, null, 2)
+    );
+  });
 
   return {
     dir: {
