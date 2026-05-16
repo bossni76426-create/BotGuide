@@ -613,6 +613,27 @@ const TIER_LABELS = {
   premium: "Premium",
 };
 
+const EXPECTED_HINTS = {
+  menu: "Expected: runs from the launcher menu before an account is loaded.",
+  account: "Expected: prints or updates the active account, then returns to the prompt.",
+  card: "Expected: opens a card-related GUI or prints box/item data for the loaded account.",
+  stage: "Expected: starts stage automation or opens a stage picker; progress prints in the terminal.",
+  zbattle: "Expected: starts EZA/Z-Battle automation and reports progress in the terminal.",
+  farm: "Expected: starts a farming queue; use Ctrl+C if you need to stop it early.",
+  gw: "Expected: checks or completes Greatest Warrior board progress.",
+  summon: "Expected: opens the summon browser or runs summons for the selected banner.",
+  shop: "Expected: prints shop data, opens Baba GUI, or buys selected shop items.",
+  special: "Expected: toggles a bot setting or runs a custom action.",
+};
+
+function expectedHintFor(cmd, desc) {
+  const text = `${cmd.name || ""} ${desc || ""}`.toLowerCase();
+  if (text.includes("gui") || text.includes("browser") || text.includes("web ui")) {
+    return "Expected: opens a local browser GUI, then the terminal continues waiting for commands.";
+  }
+  return EXPECTED_HINTS[cmd.cat] || "Expected: runs at the active bot prompt and prints progress or results.";
+}
+
 /* ===================== IMAGE RESOLUTION ===================== */
 
 const MAX_PROBE = 4; // max screenshots auto-discovered per card
@@ -734,13 +755,14 @@ function renderCards() {
       const name = ov.name || cmd.name;
       const desc = ov.desc || cmd.desc;
       const example = ov.example != null ? ov.example : cmd.example;
+      const result = ov.result || cmd.result || expectedHintFor({ ...cmd, name }, desc);
 
       const node = tpl.content.firstElementChild.cloneNode(true);
       node.dataset.id = cmd.id;
       node.dataset.tier = cmd.tier;
       node.dataset.cat = cmd.cat;
 
-      const haystack = (name + " " + desc + " " + (example || ""))
+      const haystack = (name + " " + desc + " " + result + " " + (example || ""))
         .toLowerCase();
       node.dataset.search = haystack;
 
@@ -751,6 +773,7 @@ function renderCards() {
       badge.classList.add("tier-" + cmd.tier);
 
       node.querySelector(".cmd-desc").textContent = desc;
+      node.querySelector(".cmd-result").textContent = result;
 
       const ex = node.querySelector(".cmd-example code");
       if (example) {

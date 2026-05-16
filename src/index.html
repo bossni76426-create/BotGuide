@@ -23,8 +23,9 @@
 
     <nav class="topnav" aria-label="Primary">
       <a href="#getting-started">Getting Started</a>
-      <a href="#menu-commands">Menu</a>
+      <a href="#workflows">Workflows</a>
       <a href="#in-game-commands">In-Game</a>
+      <a href="#troubleshooting">Fix Issues</a>
       <a href="#tiers">Tiers</a>
       <a href="#faq">FAQ</a>
     </nav>
@@ -37,24 +38,53 @@
 
   <!-- ===================== HERO ===================== -->
   <section id="top" class="hero">
-    <div class="hero-inner">
-      <span class="eyebrow">Unofficial user guide · v3.0.2</span>
-      <h1>Run Dokkan Battle on Pc.</h1>
-      <p class="lead">
-        GOGITO is a command-line automation bot for <strong>Dragon Ball Z Dokkan Battle</strong>.
-        This guide walks you through every command in <code>DokkanBot.exe</code> and <code>commands</code>,
-        what it does, how to call it, and what its result looks like.
-      </p>
+    <div class="hero-shell">
+      <div class="hero-window">
+        <div class="hero-window-top">
+          <span class="hero-logo">GOGITO</span>
+          <div class="hero-window-nav" aria-hidden="true">
+            <span>Play</span>
+            <span>Setup</span>
+            <span>Commands</span>
+            <span>Tiers</span>
+          </div>
+          <a class="hero-mini-cta" href="#in-game-commands">Run bot</a>
+        </div>
 
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="#getting-started">Start here</a>
-        <a class="btn btn-ghost" href="#in-game-commands">Browse commands</a>
-      </div>
+        <div class="hero-window-body">
+          <div class="hero-copy">
+            <span class="eyebrow">Unofficial user guide · v3.0.2</span>
+            <h1>Run Dokkan<br />Battle on PC.</h1>
+            <p class="lead">
+              GOGITO is a command-line automation bot for <strong>Dragon Ball Z Dokkan Battle</strong>.
+              Browse every command, see the expected result, and move from setup to farming without guessing.
+            </p>
 
-      <div class="hero-stats">
-        <div><strong id="stat-cmds">…</strong><small>commands</small></div>
-        <div><strong>4</strong><small>tiers</small></div>
-        <div><strong>10</strong><small>categories</small></div>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#getting-started">Start here</a>
+              <a class="btn btn-ghost" href="#in-game-commands">Browse commands</a>
+            </div>
+
+            <div class="hero-stats">
+              <div><strong id="stat-cmds">…</strong><small>commands</small></div>
+              <div><strong>4</strong><small>tiers</small></div>
+              <div><strong>10</strong><small>categories</small></div>
+            </div>
+          </div>
+
+          <figure class="hero-preview">
+            <img src="img/Screenshot%202026-05-16%20173244.png" alt="GOGITO Bot Card Box GUI preview" />
+            <figcaption>Card Box GUI preview</figcaption>
+          </figure>
+
+          <div class="hero-console" aria-label="Quick command examples">
+            <span class="console-dot"></span>
+            <code>load mainacc</code>
+            <code>gift</code>
+            <code>omegafarm</code>
+            <code>events keys</code>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -110,16 +140,125 @@ zbattles</code></pre>
         </article>
       </div>
 
+      <div class="status-grid" aria-label="What each bot state means">
+        <article class="status-card">
+          <span>01</span>
+          <h3>Main menu</h3>
+          <p>Use <code>new</code>, <code>load</code>, <code>login</code>, <code>list</code>, <code>settings</code>, or <code>setproxy</code> here.</p>
+        </article>
+        <article class="status-card">
+          <span>02</span>
+          <h3>Account prompt</h3>
+          <p>After an account loads, run <code>info</code> and <code>gift</code> first so you know the account state.</p>
+        </article>
+        <article class="status-card">
+          <span>03</span>
+          <h3>Browser GUI</h3>
+          <p>Commands like <code>box</code>, <code>eventgui</code>, <code>summon</code>, and <code>settings</code> open a local web panel.</p>
+        </article>
+        <article class="status-card">
+          <span>04</span>
+          <h3>Long run</h3>
+          <p>Farm commands print progress in the terminal. Stop safely with <kbd>Ctrl</kbd>+<kbd>C</kbd>.</p>
+        </article>
+      </div>
+
       <aside class="callout">
         <strong>Tip ·</strong> Hold <kbd>Ctrl</kbd>+<kbd>C</kbd> any time to stop the running command and return to the prompt.
         Type <code>exit</code> to leave the command loop and return to the menu.
       </aside>
     </section>
 
+    <!-- ===================== COMMON WORKFLOWS ===================== -->
+    <section id="workflows" class="block">
+      <header class="block-head">
+        <span class="kicker">02 · Workflows</span>
+        <h2>Use the bot by goal, not by memorizing commands</h2>
+        <p>Pick the job you want, run the commands in order, then use the reference below only when you need details.</p>
+      </header>
+
+      <div class="workflow-grid">
+        <article class="workflow-card">
+          <span class="workflow-tag">First run</span>
+          <h3>Load an account and verify it</h3>
+          <p>Best first check after opening the bot or receiving a save.</p>
+          <ol class="workflow-steps">
+            <li><code>list</code> to find saved accounts.</li>
+            <li><code>load mainacc</code> to enter the account prompt.</li>
+            <li><code>info</code> to confirm rank, stones, box size, and friend code.</li>
+            <li><code>gift</code> to claim gifts and mission rewards.</li>
+          </ol>
+        </article>
+
+        <article class="workflow-card">
+          <span class="workflow-tag">New account</span>
+          <h3>Create or sign in</h3>
+          <p>Use this when starting fresh or logging in with Google.</p>
+          <ol class="workflow-steps">
+            <li><code>new gb android</code> for a Global Android account.</li>
+            <li><code>login gg gb android</code> if the account is already linked to Google.</li>
+            <li><code>gift</code> and <code>info</code> once the account is loaded.</li>
+          </ol>
+        </article>
+
+        <article class="workflow-card">
+          <span class="workflow-tag">Farm stones</span>
+          <h3>Clear story, events, and EZA</h3>
+          <p>Good for fresh accounts or accounts with many unfinished stages.</p>
+          <ol class="workflow-steps">
+            <li><code>quests</code> clears unfinished story quests.</li>
+            <li><code>events</code> clears active event stages.</li>
+            <li><code>zbattles</code> clears active Z-Battles up to level 30.</li>
+            <li><code>omegafarm</code> runs the big combined farm when you want the bot to handle the queue.</li>
+          </ol>
+        </article>
+
+        <article class="workflow-card">
+          <span class="workflow-tag">Cards</span>
+          <h3>Farm medals or F2P cards</h3>
+          <p>Use GUI commands when you do not remember IDs; use direct commands when you already know them.</p>
+          <ol class="workflow-steps">
+            <li><code>eventgui</code> to pick stages visually.</li>
+            <li><code>medalsgui</code> to queue medal farming from a browser panel.</li>
+            <li><code>farmmedal card &lt;card_id&gt;</code> to farm every medal for a card.</li>
+            <li><code>farmdupe &lt;card_id&gt; &lt;qty&gt;</code> to farm duplicate F2P copies.</li>
+          </ol>
+        </article>
+
+        <article class="workflow-card">
+          <span class="workflow-tag">Box</span>
+          <h3>Inspect box, teams, and links</h3>
+          <p>Use these before link farming or awakening so you know what the account actually has.</p>
+          <ol class="workflow-steps">
+            <li><code>card view</code> for a safe view-only box browser.</li>
+            <li><code>box</code> for full card box actions.</li>
+            <li><code>team view</code> to build or inspect teams.</li>
+            <li><code>farm link</code> when the active team is ready.</li>
+          </ol>
+        </article>
+
+        <article class="workflow-card">
+          <span class="workflow-tag">Summon</span>
+          <h3>Find banners and summon</h3>
+          <p>Start with the GUI if you are unsure which banner ID to use.</p>
+          <ol class="workflow-steps">
+            <li><code>list summons</code> to print available banners.</li>
+            <li><code>summon</code> or <code>summonsgui</code> to open the banner browser.</li>
+            <li><code>summon &lt;id&gt; m 10</code> to run multis directly.</li>
+            <li><code>summon &lt;id&gt; m &lt;card_id&gt;</code> to stop when a target card appears.</li>
+          </ol>
+        </article>
+      </div>
+
+      <aside class="callout callout-warn">
+        <strong>No screenshot yet?</strong> The text flow above is still enough to guide a user. Add screenshots first for menu, account loaded, help, settings, event GUI, card box, summon GUI, and one common error.
+      </aside>
+    </section>
+
     <!-- ===================== BOT MENU COMMANDS ===================== -->
     <section id="menu-commands" class="block">
       <header class="block-head">
-        <span class="kicker">02 · Menu layer</span>
+        <span class="kicker">03 · Menu layer</span>
         <h2>Bot Menu Commands</h2>
         <p>These commands work at the top-level menu of <code>DokkanBot.exe</code> — before you load into an account.</p>
       </header>
@@ -130,7 +269,7 @@ zbattles</code></pre>
     <!-- ===================== IN-GAME COMMANDS ===================== -->
     <section id="in-game-commands" class="block">
       <header class="block-head">
-        <span class="kicker">03 · In-game</span>
+        <span class="kicker">04 · In-game</span>
         <h2>In-Game Commands</h2>
         <p>Once an account is loaded, these are the commands available at the bot prompt. Use the search bar to jump directly to any.</p>
       </header>
@@ -163,7 +302,7 @@ zbattles</code></pre>
     <!-- ===================== TIERS ===================== -->
     <section id="tiers" class="block">
       <header class="block-head">
-        <span class="kicker">04 · Access</span>
+        <span class="kicker">05 · Access</span>
         <h2>Tier System</h2>
         <p>Commands are gated by your license tier. Higher tiers inherit lower-tier permissions.</p>
       </header>
@@ -192,10 +331,63 @@ zbattles</code></pre>
       </div>
     </section>
 
+    <!-- ===================== TROUBLESHOOTING ===================== -->
+    <section id="troubleshooting" class="block">
+      <header class="block-head">
+        <span class="kicker">06 · Fix issues</span>
+        <h2>Troubleshooting checklist</h2>
+        <p>When something fails, identify which layer failed first: launcher, login, database, proxy, or a running command.</p>
+      </header>
+
+      <div class="trouble-grid">
+        <article class="trouble-card">
+          <h3>Bot does not open</h3>
+          <p>Install the latest x64 Visual C++ Redistributable, then relaunch <code>DokkanBot.exe</code>.</p>
+          <pre class="code"><code>DokkanBot.exe</code></pre>
+        </article>
+
+        <article class="trouble-card">
+          <h3>Token, 401, or session error</h3>
+          <p>Refresh the active session. If it keeps failing, return to the menu and load the account again.</p>
+          <pre class="code"><code>refresh
+exit
+load mainacc</code></pre>
+        </article>
+
+        <article class="trouble-card">
+          <h3>Database looks old</h3>
+          <p>Force a local database refresh before retrying stage, card, summon, or item commands.</p>
+          <pre class="code"><code>updatedb</code></pre>
+        </article>
+
+        <article class="trouble-card">
+          <h3>Proxy or connection fails</h3>
+          <p>Clear the proxy to test direct connection, or set a known working HTTP/SOCKS proxy.</p>
+          <pre class="code"><code>setproxy none
+setproxy http://127.0.0.1:7890</code></pre>
+        </article>
+
+        <article class="trouble-card">
+          <h3>Command is running too long</h3>
+          <p>Stop the active job, return to the prompt, then run a smaller command to isolate the issue.</p>
+          <pre class="code"><code>Ctrl + C
+stage 101001 3 1</code></pre>
+        </article>
+
+        <article class="trouble-card">
+          <h3>Not sure where you are</h3>
+          <p>If the prompt is confusing, use <code>help</code>, <code>info</code>, or <code>exit</code> to re-orient.</p>
+          <pre class="code"><code>help
+info
+exit</code></pre>
+        </article>
+      </div>
+    </section>
+
     <!-- ===================== FAQ ===================== -->
     <section id="faq" class="block">
       <header class="block-head">
-        <span class="kicker">05 · FAQ</span>
+        <span class="kicker">07 · FAQ</span>
         <h2>Common questions</h2>
       </header>
 
@@ -215,6 +407,10 @@ zbattles</code></pre>
         <details>
           <summary>Can I run commands in batch?</summary>
           <p>Yes — put one command per line in a <code>.txt</code> file inside <code>custom_commands/</code>, then run <code>custom</code> and pick the file.</p>
+        </details>
+        <details>
+          <summary>Do I need a screenshot for every command?</summary>
+          <p>No. Prioritize screenshots for state changes and GUI commands first: menu, account loaded, help, settings, event GUI, card box, summon GUI, and common errors.</p>
         </details>
         <details>
           <summary>How do I add my own screenshots to this guide?</summary>
@@ -240,6 +436,7 @@ zbattles</code></pre>
         <span class="tier-badge"></span>
       </header>
       <p class="cmd-desc"></p>
+      <p class="cmd-result"></p>
       <pre class="cmd-example"><code></code></pre>
       <figure class="shot" tabindex="0" role="button" aria-label="View screenshot">
         <img alt="" loading="lazy" />
