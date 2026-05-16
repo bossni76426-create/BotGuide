@@ -13,12 +13,84 @@
 
   const { COMMANDS, STEPS, TIER_LABELS, STORAGE_KEY } = window.GOGITO;
 
-  const MAX_IMG_WIDTH = 1280;
-  const IMG_QUALITY = 0.85;
+  const ABSOLUTE_IMAGE_RE = /^(?:data:|blob:|https?:\/\/|\/)/i;
+  const EMBEDDED_IMAGE_RE = /^data:image\//i;
+
+  function normalizeImageSrc(src) {
+    const value = String(src || "").trim();
+    if (!value) return "";
+    if (ABSOLUTE_IMAGE_RE.test(value)) return value;
+    return value.replace(/^\.\.\/+/, "").replace(/^\.\/+/, "");
+  }
+
+  function displayImageSrc(src) {
+    const value = normalizeImageSrc(src);
+    if (!value || ABSOLUTE_IMAGE_RE.test(value)) return value;
+    return value.startsWith("img/") ? `../${value}` : value;
+  }
+
+  function encodePathSegments(value) {
+    return String(value || "")
+      .split(/[\\/]+/)
+      .filter(Boolean)
+      .map(encodeURIComponent)
+      .join("/");
+  }
+
+  function imageUrlFromFile(file) {
+    return file && file.name ? `img/${encodePathSegments(file.name)}` : "";
+  }
+
+  function normalizeImageList(value) {
+    const list = Array.isArray(value) ? value : value ? [value] : [];
+    return list.map(normalizeImageSrc).filter(Boolean);
+  }
+
+  function removeEmbeddedImages(overrides) {
+    const compact = {};
+    let removed = 0;
+
+    Object.entries(overrides || {}).forEach(([key, value]) => {
+      if (!value || typeof value !== "object") return;
+      const entry = { ...value };
+
+      if (Array.isArray(entry.images)) {
+        const images = [];
+        entry.images.forEach((src) => {
+          const normalized = normalizeImageSrc(src);
+          if (!normalized) return;
+          if (EMBEDDED_IMAGE_RE.test(normalized)) {
+            removed++;
+            return;
+          }
+          images.push(normalized);
+        });
+        if (images.length) entry.images = images;
+        else delete entry.images;
+      }
+
+      if (entry.image) {
+        const image = normalizeImageSrc(entry.image);
+        if (EMBEDDED_IMAGE_RE.test(image)) {
+          removed++;
+          delete entry.image;
+        } else {
+          entry.image = image;
+        }
+      }
+
+      if (Object.keys(entry).length) compact[key] = entry;
+    });
+
+    return { compact, removed };
+  }
 
   /* ---------- storage ---------- */
 
-  function readOverrides() {
+  let activeOverrides = null;
+  let startupNotice = "";
+
+  function readLocalOverrides() {
     try {
       return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
     } catch {
@@ -26,14 +98,64 @@
     }
   }
 
+  function readOverrides() {
+    return activeOverrides || readLocalOverrides();
+  }
+
+  function loadPublishedOverrides() {
+    return fetch("../overrides.json", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : {}))
+      .then((data) => (data && typeof data === "object" ? data : {}))
+      .catch(() => ({}));
+  }
+
+  function loadInitialOverrides() {
+    return loadPublishedOverrides().then((published) => {
+      const local = readLocalOverrides();
+      const { compact, removed } = removeEmbeddedImages(local);
+      const localOverrides = removed ? compact : local;
+
+      if (removed) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
+          startupNotice =
+            `Removed ${removed} embedded local image(s). Baked images now load from src/overrides.json paths.`;
+        } catch (e) {
+          startupNotice =
+            `Skipped ${removed} embedded local image(s) for this session; use Reset all if storage is still full.`;
+          console.warn("Could not compact local embedded images", e);
+        }
+      }
+
+      activeOverrides = { ...published, ...localOverrides };
+      return activeOverrides;
+    });
+  }
+
   function writeOverrides(o) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(o));
+      activeOverrides = o;
       return true;
     } catch (e) {
+      const { compact, removed } = removeEmbeddedImages(o);
+      if (removed) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
+          activeOverrides = compact;
+          alert(
+            `Removed ${removed} embedded image(s) so text/path edits can still save. ` +
+              "Use img/... paths or external image URLs for screenshots."
+          );
+          console.warn("Removed embedded images from local overrides", e);
+          return true;
+        } catch (compactErr) {
+          console.error(compactErr);
+        }
+      }
       alert(
-        "Could not save to localStorage — usually means an image is too large. " +
-          "Try Export JSON to back up your text edits before retrying."
+        "Could not save to localStorage. Use image paths/URLs instead of embedded images, " +
+          "or Export JSON to back up your text edits before retrying."
       );
       console.error(e);
       return false;
@@ -45,31 +167,6 @@
     if (!el) return;
     el.textContent = msg;
     el.dataset.kind = kind || "info";
-  }
-
-  /* ---------- image processing ---------- */
-
-  function fileToResizedDataURL(file) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      const reader = new FileReader();
-      reader.onload = () => (img.src = reader.result);
-      reader.onerror = reject;
-      img.onerror = reject;
-      img.onload = () => {
-        const ratio = Math.min(1, MAX_IMG_WIDTH / img.width);
-        const w = Math.round(img.width * ratio);
-        const h = Math.round(img.height * ratio);
-        const canvas = document.createElement("canvas");
-        canvas.width = w;
-        canvas.height = h;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, w, h);
-        // Prefer JPEG for screenshots — much smaller than PNG
-        resolve(canvas.toDataURL("image/jpeg", IMG_QUALITY));
-      };
-      reader.readAsDataURL(file);
-    });
   }
 
   /* ---------- card rendering ---------- */
@@ -125,21 +222,23 @@
     const thumbsRow = node.querySelector(".admin-thumbs");
     const addLabel = node.querySelector(".admin-add-img");
     const fileInput = addLabel.querySelector('input[type="file"]');
+    const urlInput = node.querySelector(".admin-img-url");
+    const urlButton = node.querySelector(".admin-img-url-add");
 
-    // In-memory state: array of data URLs OR file paths.
+    // In-memory state: array of public image paths or absolute URLs.
     // Order persisted in override.images on every change.
     let images = [];
     if (Array.isArray(ov.images) && ov.images.length) {
-      images = ov.images.slice();
+      images = normalizeImageList(ov.images);
     } else if (ov.image) {
-      images = [ov.image]; // legacy single-image entry
+      images = normalizeImageList(ov.image); // legacy single-image entry
     }
 
     const filePrefix = kind === "step" ? "step" : "cmd";
     const probeFile = (idx) =>
       idx === 0
-        ? `../img/${filePrefix}-${item.id}.png`
-        : `../img/${filePrefix}-${item.id}-${idx + 1}.png`;
+        ? `img/${filePrefix}-${item.id}.png`
+        : `img/${filePrefix}-${item.id}-${idx + 1}.png`;
 
     async function probeFileChain() {
       const out = [];
@@ -149,7 +248,7 @@
           const im = new Image();
           im.onload = () => res(true);
           im.onerror = () => res(false);
-          im.src = url;
+          im.src = displayImageSrc(url);
         });
         if (ok) out.push(url);
         else break;
@@ -163,7 +262,7 @@
       images.forEach((src, idx) => {
         const t = tpl.content.firstElementChild.cloneNode(true);
         t.dataset.idx = idx;
-        t.querySelector("img").src = src;
+        t.querySelector("img").src = displayImageSrc(src);
         t.querySelector(".admin-thumb-up").disabled = idx === 0;
         t.querySelector(".admin-thumb-down").disabled = idx === images.length - 1;
         t.querySelector(".admin-thumb-up").addEventListener("click", (e) => {
@@ -194,11 +293,12 @@
       // (we only care about images[] going forward).
       const all = readOverrides();
       const entry = all[key] ? { ...all[key] } : {};
+      const storedImages = images.map(normalizeImageSrc).filter(Boolean);
       delete entry.image;
-      if (images.length === 0) {
+      if (storedImages.length === 0) {
         delete entry.images;
       } else {
-        entry.images = images.slice();
+        entry.images = storedImages;
       }
       if (Object.keys(entry).length === 0) {
         delete all[key];
@@ -211,26 +311,42 @@
       }
     }
 
-    async function addFiles(fileList) {
+    function addImageUrl(value) {
+      const url = normalizeImageSrc(value);
+      if (!url) return;
+      images.push(url);
+      persistImages();
+      if (urlInput) urlInput.value = "";
+    }
+
+    function addFiles(fileList) {
       const arr = Array.from(fileList || []).filter((f) =>
         f.type.startsWith("image/")
       );
       if (!arr.length) return;
-      try {
-        for (const f of arr) {
-          const url = await fileToResizedDataURL(f);
-          images.push(url);
-        }
-        persistImages();
-      } catch (err) {
-        alert("Failed to process image: " + err.message);
-      }
+      const urls = arr.map(imageUrlFromFile).filter(Boolean);
+      if (!urls.length) return;
+      images.push(...urls);
+      persistImages();
+      setStatus(`Added ${urls.length} image path(s). Keep matching files in src/img.`, "ok");
     }
 
     fileInput.addEventListener("change", (e) => {
       addFiles(e.target.files);
       fileInput.value = "";
     });
+
+    if (urlButton && urlInput) {
+      urlButton.addEventListener("click", (e) => {
+        e.preventDefault();
+        addImageUrl(urlInput.value);
+      });
+      urlInput.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        addImageUrl(urlInput.value);
+      });
+    }
 
     // Drag & drop on whole gallery (or its container)
     gallery.addEventListener("dragover", (e) => {
@@ -313,7 +429,7 @@
         if (e.key === "Escape" && lb.classList.contains("open")) closePreview();
       });
     }
-    lb.querySelector(".admin-preview-img").src = src;
+    lb.querySelector(".admin-preview-img").src = displayImageSrc(src);
     lb.classList.add("open");
     document.body.classList.add("lb-open");
   }
@@ -424,53 +540,62 @@
   /* ---------- init ---------- */
 
   document.addEventListener("DOMContentLoaded", () => {
-    // Steps
-    const stepsGrid = document.getElementById("admin-steps");
-    STEPS.forEach((s) => stepsGrid.appendChild(makeCard("step", s)));
+    setStatus("Loading saved overrides...", "info");
 
-    // Commands
-    const cmdsGrid = document.getElementById("admin-cmds");
-    COMMANDS.forEach((c) => cmdsGrid.appendChild(makeCard("cmd", c)));
+    loadInitialOverrides().then(() => {
+      // Steps
+      const stepsGrid = document.getElementById("admin-steps");
+      STEPS.forEach((s) => stepsGrid.appendChild(makeCard("step", s)));
 
-    // Toolbar
-    document.getElementById("export-btn").addEventListener("click", exportJSON);
-    document.getElementById("reset-btn").addEventListener("click", resetAll);
-    document.getElementById("import-input").addEventListener("change", (e) => {
-      const file = e.target.files && e.target.files[0];
-      if (file) importJSON(file);
-    });
+      // Commands
+      const cmdsGrid = document.getElementById("admin-cmds");
+      COMMANDS.forEach((c) => cmdsGrid.appendChild(makeCard("cmd", c)));
 
-    // Search
-    const search = document.getElementById("admin-search");
-    search.addEventListener("input", (e) => {
-      activeQuery = e.target.value.trim();
-      applyFilters();
-    });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "/" && document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "TEXTAREA") {
-        e.preventDefault();
-        search.focus();
-      }
-    });
+      // Toolbar
+      document.getElementById("export-btn").addEventListener("click", exportJSON);
+      document.getElementById("reset-btn").addEventListener("click", resetAll);
+      document.getElementById("import-input").addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) importJSON(file);
+      });
 
-    // Category chips
-    document.querySelectorAll("#admin-categories .chip").forEach((chip) => {
-      chip.addEventListener("click", () => {
-        document
-          .querySelectorAll("#admin-categories .chip")
-          .forEach((c) => c.classList.remove("active"));
-        chip.classList.add("active");
-        activeCat = chip.dataset.filter;
+      // Search
+      const search = document.getElementById("admin-search");
+      search.addEventListener("input", (e) => {
+        activeQuery = e.target.value.trim();
         applyFilters();
       });
-    });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "/" && document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "TEXTAREA") {
+          e.preventDefault();
+          search.focus();
+        }
+      });
 
-    const count = Object.keys(readOverrides()).length;
-    setStatus(
-      count
-        ? `${count} local override(s) active. They will preview on the public site in this browser.`
-        : "Ready. Edits autosave to this browser only.",
-      "info"
-    );
+      // Category chips
+      document.querySelectorAll("#admin-categories .chip").forEach((chip) => {
+        chip.addEventListener("click", () => {
+          document
+            .querySelectorAll("#admin-categories .chip")
+            .forEach((c) => c.classList.remove("active"));
+          chip.classList.add("active");
+          activeCat = chip.dataset.filter;
+          applyFilters();
+        });
+      });
+
+      const localCount = Object.keys(readLocalOverrides()).length;
+      const totalCount = Object.keys(readOverrides()).length;
+      setStatus(
+        startupNotice
+          ? startupNotice
+          : localCount
+          ? `${localCount} local override(s) active. They will preview on the public site in this browser.`
+          : totalCount
+            ? `${totalCount} baked override(s) loaded from src/overrides.json.`
+            : "Ready. Edits autosave to this browser only.",
+        startupNotice ? "ok" : "info"
+      );
+    });
   });
 })();

@@ -502,7 +502,7 @@ const COMMANDS = [
 
   /* ===================== SHOP ===================== */
   {
-    section: "in-game", cat: "shop", tier: "basic", id: "baba",
+    section: "in-game", cat: "shop", tier: "premium", id: "baba",
     name: "baba",
     desc: "Print every Baba Shop item to the console with prices.",
     example: "baba",
@@ -608,7 +608,7 @@ async function loadAllOverrides() {
 /* ===================== RENDERING ===================== */
 
 const TIER_LABELS = {
-  basic: "Basic",
+  basic: "Basic (Free)",
   vip: "VIP",
   premium: "Premium",
 };
@@ -638,6 +638,19 @@ function expectedHintFor(cmd, desc) {
 
 const MAX_PROBE = 4; // max screenshots auto-discovered per card
 let imageManifestPromise = null;
+const ABSOLUTE_IMAGE_RE = /^(?:data:|blob:|https?:\/\/|\/)/i;
+
+function normalizeImageSrc(src) {
+  const value = String(src || "").trim();
+  if (!value) return "";
+  if (ABSOLUTE_IMAGE_RE.test(value)) return value;
+  return value.replace(/^\.\.\/+/, "").replace(/^\.\/+/, "");
+}
+
+function normalizeImageList(value) {
+  const list = Array.isArray(value) ? value : value ? [value] : [];
+  return list.map(normalizeImageSrc).filter(Boolean);
+}
 
 function probeImage(url) {
   return new Promise((resolve) => {
@@ -682,8 +695,10 @@ function manifestImagesFor(manifest, prefix, id) {
 // Resolve images for a card: override first, then probe sequential files.
 async function resolveImages(prefix, id, override) {
   if (override) {
-    if (Array.isArray(override.images) && override.images.length) return override.images.slice();
-    if (override.image) return [override.image];
+    if (Array.isArray(override.images) && override.images.length) {
+      return normalizeImageList(override.images);
+    }
+    if (override.image) return normalizeImageList(override.image);
   }
   const probes = [];
   for (let i = 0; i < MAX_PROBE; i++) {
@@ -711,23 +726,25 @@ function attachShot(fig, images, captionLabel) {
     fig.prepend(img);
   }
   const badge = fig.querySelector(".shot-count");
+  const resolvedImages = normalizeImageList(images);
 
-  if (!images || images.length === 0) {
+  if (!resolvedImages.length) {
     fig.classList.remove("has-image");
     img.removeAttribute("src");
     if (badge) badge.hidden = true;
     fig.removeAttribute("data-clickable");
+    fig._images = [];
     return;
   }
 
   fig.classList.add("has-image");
-  fig._images = images;
+  fig._images = resolvedImages;
   fig._caption = captionLabel;
   fig.dataset.clickable = "1";
-  img.src = images[0];
+  img.src = fig._images[0];
   if (badge) {
-    if (images.length > 1) {
-      badge.textContent = `+${images.length - 1}`;
+    if (fig._images.length > 1) {
+      badge.textContent = `+${fig._images.length - 1}`;
       badge.hidden = false;
     } else {
       badge.hidden = true;
@@ -903,6 +920,29 @@ function maybeShowOverrideBanner() {
   });
 }
 
+function maybeShowFileProtocolBanner() {
+  if (location.protocol !== "file:") return;
+  const main = document.querySelector("main.container");
+  if (!main) return;
+  const banner = document.createElement("aside");
+  banner.className = "override-banner";
+  banner.innerHTML =
+    '<strong>Local file mode ·</strong> open this guide through ' +
+    '<code>npm.cmd start</code> at <code>http://localhost:8080/</code> ' +
+    "so admin edits and JSON image overrides load correctly.";
+  main.prepend(banner);
+}
+
+function redirectFileProtocolToServer() {
+  if (location.protocol !== "file:") return;
+  const target = "http://localhost:8080/";
+  fetch(target, { mode: "no-cors", cache: "no-store" })
+    .then(() => {
+      location.replace(target);
+    })
+    .catch(() => {});
+}
+
 /* ===================== LIGHTBOX ===================== */
 
 const lightbox = {
@@ -1013,10 +1053,12 @@ function wireShotClicks() {
 window.GOGITO = { COMMANDS, STEPS, TIER_LABELS, STORAGE_KEY, loadOverrides };
 
 document.addEventListener("DOMContentLoaded", () => {
+  redirectFileProtocolToServer();
   lightboxInit();
   renderCards();
   wireStepShots();
   wireFilters();
   wireShotClicks();
+  maybeShowFileProtocolBanner();
   maybeShowOverrideBanner();
 });

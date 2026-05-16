@@ -30,6 +30,11 @@ redirect rule sends any stray `/admin/*` request back to `/`.
 vercel --prod
 ```
 
+## Community links
+
+- Patreon tiers: <https://www.patreon.com/c/GComuntity/membership>
+- Discord invite: <https://discord.com/invite/pS7Acz3au3>
+
 ## Multi-image gallery
 
 Each command card supports up to 4 screenshots out of the box. Drop
@@ -44,14 +49,19 @@ Two ways, pick whichever is comfier:
 ### Option A — use the admin page (no-code)
 
 Open `/admin/` (linked from the public site footer) and drop screenshots
+into `src/img/`, then use the filename picker or paste an `img/...` URL
 into each card. Edits live in your browser only, so the public site only
 shows them on **that** browser. Use **Export JSON** to save a snapshot,
 then either:
 
 - Re-import on another device, or
-- Bake permanent images by saving them as `src/img/cmd-<id>.png`.
+- Bake permanent images by saving them in `src/img/` and committing the
+  exported `src/overrides.json`.
 
-The admin auto-resizes large screenshots to keep storage under control.
+The admin stores screenshot paths/URLs instead of embedding image data in
+`localStorage`, which keeps browser storage small even with many images.
+Preview via <http://localhost:8080/> from `npm run start`; double-clicking
+`index.html` uses a different browser origin and will not see admin drafts.
 
 ### Option B — drop files directly
 
@@ -96,7 +106,7 @@ Open `src/script.js` and edit the `COMMANDS` array. Each entry is:
 {
   section: "in-game",   // "in-game" or "menu"
   cat:     "stage",     // category chip key
-  tier:    "basic",     // "basic" | "vip" | "premium"
+  tier:    "basic",     // "basic" = Basic (Free); or "vip" | "premium"
   id:      "omegafarm", // unique id (also screenshot filename)
   name:    "omegafarm", // displayed in the card header
   desc:    "…",         // short user-facing description

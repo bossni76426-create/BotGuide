@@ -14,7 +14,9 @@
   <!-- ===================== TOP BAR ===================== -->
   <header class="topbar">
     <a class="brand" href="#top">
-      <span class="brand-mark">G</span>
+      <span class="brand-mark">
+        <img src="channels4_profile.jpg" alt="" />
+      </span>
       <span class="brand-text">
         <strong>GOGITO Bot</strong>
         <small>Dokkan Battle Guide</small>
@@ -27,6 +29,7 @@
       <a href="#in-game-commands">In-Game</a>
       <a href="#troubleshooting">Fix Issues</a>
       <a href="#tiers">Tiers</a>
+      <a href="https://discord.com/invite/pS7Acz3au3" target="_blank" rel="noopener">Discord</a>
       <a href="#faq">FAQ</a>
     </nav>
 
@@ -41,7 +44,10 @@
     <div class="hero-shell">
       <div class="hero-window">
         <div class="hero-window-top">
-          <span class="hero-logo">GOGITO</span>
+          <span class="hero-logo">
+            <img src="channels4_profile.jpg" alt="" />
+            GOGITO
+          </span>
           <div class="hero-window-nav" aria-hidden="true">
             <span>Play</span>
             <span>Setup</span>
@@ -63,11 +69,12 @@
             <div class="hero-actions">
               <a class="btn btn-primary" href="#getting-started">Start here</a>
               <a class="btn btn-ghost" href="#in-game-commands">Browse commands</a>
+              <a class="btn btn-discord" href="https://discord.com/invite/pS7Acz3au3" target="_blank" rel="noopener">Join Discord</a>
             </div>
 
             <div class="hero-stats">
               <div><strong id="stat-cmds">…</strong><small>commands</small></div>
-              <div><strong>4</strong><small>tiers</small></div>
+              <div><strong>5</strong><small>tiers</small></div>
               <div><strong>10</strong><small>categories</small></div>
             </div>
           </div>
@@ -90,6 +97,13 @@
   </section>
 
   <main class="container">
+    <aside class="community-strip" aria-label="Community invite">
+      <div>
+        <strong>Need setup help or updates?</strong>
+        <span>Join the GOGITO Discord community for support, announcements, and tier access help.</span>
+      </div>
+      <a class="btn btn-primary" href="https://discord.com/invite/pS7Acz3au3" target="_blank" rel="noopener">Join Discord</a>
+    </aside>
 
     <!-- ===================== GETTING STARTED ===================== -->
     <section id="getting-started" class="block">
@@ -271,7 +285,7 @@ zbattles</code></pre>
       <header class="block-head">
         <span class="kicker">04 · In-game</span>
         <h2>In-Game Commands</h2>
-        <p>Once an account is loaded, these are the commands available at the bot prompt. Use the search bar to jump directly to any.</p>
+        <p>Once an account is loaded, these are the commands available at the bot prompt. Commands marked Basic (Free) do not require Patreon. VIP and Premium commands require a paid tier.</p>
       </header>
 
       <nav class="chips" id="category-chips" aria-label="Categories">
@@ -289,7 +303,7 @@ zbattles</code></pre>
 
       <nav class="chips chips-tier" aria-label="Tier filter">
         <button class="chip active" data-tier="all">All tiers</button>
-        <button class="chip chip-basic" data-tier="basic">Basic</button>
+        <button class="chip chip-basic" data-tier="basic">Basic (Free)</button>
         <button class="chip chip-vip" data-tier="vip">VIP</button>
         <button class="chip chip-premium" data-tier="premium">Premium</button>
       </nav>
@@ -310,25 +324,76 @@ zbattles</code></pre>
       <div class="tier-grid">
         <article class="tier-card tier-basic">
           <h3>Basic</h3>
-          <p>Free tier. Account management, stages, story, summons, EZA up to level 30.</p>
-          <span class="cap">20 accounts</span>
+          <strong class="tier-price">Free <small>no Patreon required</small></strong>
+          <span class="cap">20 free accounts</span>
+          <ul class="tier-features">
+            <li>Account info, gifts, refresh, database update, rename, Google link/unlink.</li>
+            <li>Card view, card/item lists, teams, deck switch, selling, and box capacity.</li>
+            <li>Story quests, areas, active events, Dragon Ball Stories, event GUI, and omegafarm.</li>
+            <li>Basic EZA/Z-Battle progress to level 30 plus EZA level/range farming.</li>
+            <li>Medal farming, F2P dupe farming, rank info, summons,utility toggles.</li>
+          </ul>
         </article>
         <article class="tier-card tier-vip">
           <h3>VIP</h3>
-          <p>Adds keys-completion, link farming, medals GUI, dragon balls, missions, Greatest Warrior.</p>
+          <strong class="tier-price">$3.77 <small>/ month</small></strong>
           <span class="cap">250 accounts</span>
+          <ul class="tier-features">
+            <li>Card Box Viewer and Auto Awaken V1 + V2 Beta.</li>
+            <li>Team Builder and Link Skill Farming to level 10.</li>
+            <li>F2P Card plus Blue/Green Gem farming.</li>
+            <li>Clash, Event Keys, Card Selling Auto.</li>
+            <li>Includes all Basic (Free) features and Discord access.</li>
+          </ul>
+          <a class="btn btn-primary tier-join" href="https://www.patreon.com/c/GComuntity/membership" target="_blank" rel="noopener">Join VIP</a>
         </article>
         <article class="tier-card tier-premium">
           <h3>Premium</h3>
-          <p>Adds Hidden Potential auto, F2P auto, auto-build team, Baba GUI.</p>
+          <strong class="tier-price">$6.77 <small>/ month</small></strong>
           <span class="cap">400 accounts</span>
+          <ul class="tier-features">
+            <li>Hidden Potential system access.</li>
+            <li>Exclusive Baba Shop Viewer.</li>
+            <li>Use all features without limitations.</li>
+            <li>Suggest ideas for developing new features.</li>
+            <li>Includes VIP features and Discord access.</li>
+          </ul>
+          <a class="btn btn-primary tier-join" href="https://www.patreon.com/c/GComuntity/membership" target="_blank" rel="noopener">Join Premium</a>
         </article>
         <article class="tier-card tier-elite">
-          <h3>Elite +</h3>
-          <p>Larger account limits (Elite 750 · Supreme 1200) for power users.</p>
-          <span class="cap">750–1200 accounts</span>
+          <h3>Elite</h3>
+          <strong class="tier-price">$9.77 <small>/ month</small></strong>
+          <span class="cap">750 accounts</span>
+          <ul class="tier-features">
+            <li>All Premium, VIP, and Basic (Free) features.</li>
+            <li>Full access to the DBL bot.</li>
+            <li>20 new accounts created on your behalf.</li>
+            <li>Includes the 14k Stones new account creation method.</li>
+            <li>Early access and Discord access.</li>
+          </ul>
+          <a class="btn btn-primary tier-join" href="https://www.patreon.com/c/GComuntity/membership" target="_blank" rel="noopener">Join Elite</a>
+        </article>
+        <article class="tier-card tier-supreme">
+          <h3>Supreme</h3>
+          <strong class="tier-price">$12.77 <small>/ month</small></strong>
+          <span class="cap">1,200 accounts</span>
+          <ul class="tier-features">
+            <li>All Elite, Premium, and VIP features.</li>
+            <li>Private chat channel with owner.</li>
+            <li>Full access to the DBL bot.</li>
+            <li>100 new accounts created on your behalf.</li>
+            <li>Name in community credits and Discord access.</li>
+          </ul>
+          <a class="btn btn-primary tier-join" href="https://www.patreon.com/c/GComuntity/membership" target="_blank" rel="noopener">Join Supreme</a>
         </article>
       </div>
+
+      <aside class="callout tier-community">
+        <strong>Community ·</strong>
+        Upgrade on <a href="https://www.patreon.com/c/GComuntity/membership" target="_blank" rel="noopener">Patreon</a>
+        or join the <a href="https://discord.com/invite/pS7Acz3au3" target="_blank" rel="noopener">Discord server</a>
+        for support and updates.
+      </aside>
     </section>
 
     <!-- ===================== TROUBLESHOOTING ===================== -->
@@ -424,6 +489,7 @@ exit</code></pre>
     <p>
       Built for the GOGITO Bot community ·
       <a href="https://www.patreon.com/c/GComuntity/membership" target="_blank" rel="noopener">Tier upgrades</a> ·
+      <a href="https://discord.com/invite/pS7Acz3au3" target="_blank" rel="noopener">Discord</a> ·
       Hold <kbd>Ctrl</kbd>+<kbd>C</kbd> to stop · <code>help</code> for full reference
     </p>
   </footer>

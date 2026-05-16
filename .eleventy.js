@@ -27,6 +27,7 @@ module.exports = function (eleventyConfig) {
   // Pass-through copy for static assets
   eleventyConfig.addPassthroughCopy({ "src/style.css": "style.css" });
   eleventyConfig.addPassthroughCopy({ "src/script.js": "script.js" });
+  eleventyConfig.addPassthroughCopy({ "src/channels4_profile.jpg": "channels4_profile.jpg" });
   eleventyConfig.addPassthroughCopy({ "src/img": "img" });
   if (fs.existsSync(path.join(__dirname, "src", "overrides.json"))) {
     eleventyConfig.addPassthroughCopy({ "src/overrides.json": "overrides.json" });

@@ -13,7 +13,9 @@
 <body class="admin">
   <header class="topbar">
     <a class="brand" href="../">
-      <span class="brand-mark">G</span>
+      <span class="brand-mark">
+        <img src="../channels4_profile.jpg" alt="" />
+      </span>
       <span class="brand-text">
         <strong>GOGITO Admin</strong>
         <small>Guide content editor</small>
@@ -37,9 +39,11 @@
       <span class="eyebrow">Editor · local only</span>
       <h1>Drop screenshots &amp; tweak text.</h1>
       <p class="lead">
-        Every change is saved in <em>your browser only</em>. Use <strong>Export JSON</strong>
-        to download a snapshot, then commit it as <code>src/overrides.json</code> for
-        permanent baking, or drop the matching PNGs into <code>src/img/</code>.
+        Every change is saved in <em>your browser only</em>. Screenshots are saved as
+        <code>img/...</code> paths or external URLs, so the editor stays small. Use
+        <strong>Export JSON</strong> to download a snapshot, then commit it as
+        <code>src/overrides.json</code>. Preview through <code>http://localhost:8080/</code>,
+        not by double-clicking <code>index.html</code>.
       </p>
 
       <div class="admin-toolbar">
@@ -114,10 +118,14 @@
           <div class="admin-thumbs"></div>
           <label class="admin-add-img" tabindex="0">
             <span class="admin-add-icon">+</span>
-            <span class="admin-add-label">Add screenshot</span>
-            <small>or drop image here</small>
+            <span class="admin-add-label">Use filename</span>
+            <small>from src/img</small>
             <input type="file" accept="image/*" multiple hidden />
           </label>
+          <div class="admin-url-row">
+            <input class="admin-img-url" type="text" placeholder="img/example.png or https://..." aria-label="Image URL" />
+            <button type="button" class="admin-img-url-add">Add URL</button>
+          </div>
         </div>
         <div class="admin-fields">
           <label>
