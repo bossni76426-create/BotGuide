@@ -1047,6 +1047,42 @@ function wireShotClicks() {
   });
 }
 
+function wireMobileMenu() {
+  const topbar = document.querySelector(".topbar");
+  const toggle = document.querySelector(".menu-toggle");
+  if (!topbar || !toggle) return;
+
+  const navId = toggle.getAttribute("aria-controls");
+  const nav = navId ? document.getElementById(navId) : null;
+  if (!nav) return;
+
+  const label = toggle.querySelector(".menu-toggle-text");
+  const setOpen = (open) => {
+    topbar.classList.toggle("nav-open", open);
+    toggle.setAttribute("aria-expanded", String(open));
+    if (label) label.textContent = open ? "Close" : "Menu";
+  };
+
+  toggle.addEventListener("click", () => {
+    setOpen(toggle.getAttribute("aria-expanded") !== "true");
+  });
+
+  nav.addEventListener("click", (e) => {
+    if (e.target.closest("a")) setOpen(false);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") setOpen(false);
+  });
+
+  const desktopQuery = window.matchMedia("(min-width: 881px)");
+  const closeOnDesktop = () => {
+    if (desktopQuery.matches) setOpen(false);
+  };
+  if (desktopQuery.addEventListener) desktopQuery.addEventListener("change", closeOnDesktop);
+  else if (desktopQuery.addListener) desktopQuery.addListener(closeOnDesktop);
+}
+
 /* ===================== INIT ===================== */
 
 // Expose to admin page
@@ -1054,6 +1090,7 @@ window.GOGITO = { COMMANDS, STEPS, TIER_LABELS, STORAGE_KEY, loadOverrides };
 
 document.addEventListener("DOMContentLoaded", () => {
   redirectFileProtocolToServer();
+  wireMobileMenu();
   lightboxInit();
   renderCards();
   wireStepShots();

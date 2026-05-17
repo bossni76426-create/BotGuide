@@ -163,6 +163,39 @@ a:hover {
   text-decoration: none;
 }
 
+.menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid rgba(47, 68, 136, 0.85);
+  border-radius: var(--radius-sm);
+  background: rgba(21, 32, 61, 0.86);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.menu-toggle:hover,
+.menu-toggle[aria-expanded="true"] {
+  border-color: rgba(98, 212, 255, 0.58);
+  background: var(--surface-hi);
+}
+.menu-toggle-icon {
+  display: grid;
+  gap: 4px;
+  width: 16px;
+}
+.menu-toggle-icon span {
+  display: block;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
 .searchbar {
   position: relative;
   display: flex;
@@ -1242,15 +1275,44 @@ code:not(.cmd-name):not([class*="hljs"]) {
 }
 
 @media (max-width: 880px) {
-  .topnav { display: none; }
   .topbar {
     top: 8px;
+    flex-wrap: wrap;
     max-width: calc(100% - 20px);
     margin-top: 8px;
     padding: 10px;
     gap: 12px;
   }
-  .searchbar input { width: 160px; }
+  .brand {
+    min-width: 0;
+  }
+  .menu-toggle {
+    display: inline-flex;
+    margin-left: auto;
+  }
+  .topnav {
+    order: 4;
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    margin-left: 0;
+    padding-top: 10px;
+    border-top: 1px solid rgba(47, 68, 136, 0.58);
+  }
+  .topbar.nav-open .topnav { display: flex; }
+  .topnav a {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 9px 11px;
+    background: rgba(21, 32, 61, 0.5);
+  }
+  .searchbar {
+    order: 3;
+    width: 100%;
+  }
+  .searchbar input { width: 100%; }
   .container { padding: 40px 16px; }
   .community-strip {
     margin: -14px 0 42px;
@@ -1302,7 +1364,8 @@ code:not(.cmd-name):not([class*="hljs"]) {
 @media (max-width: 500px) {
   body { font-size: 16px; }
   .brand-text small { display: none; }
-  .searchbar input { width: min(42vw, 150px); }
+  .brand-text strong { font-size: 16px; }
+  .searchbar input { width: 100%; }
   .hero-window-top { padding: 10px 12px; }
   .hero-mini-cta { display: none; }
   .hero-stats { gap: 8px; }
